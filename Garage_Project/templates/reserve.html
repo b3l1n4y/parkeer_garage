@@ -1,0 +1,487 @@
+{% extends "base.html" %}
+
+{% block title %}Make Reservation - Car Parking Setting 12{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <!-- Page Header -->
+        <div class="text-center mb-4">
+            <h1 class="gradient-text mb-2">
+                <i class="fas fa-plus-circle me-2"></i>Make a Reservation
+            </h1>
+            <p class="text-muted">
+                <i class="fas fa-leaf text-success me-1"></i>
+                Reserve your eco-friendly parking spot
+            </p>
+        </div>
+
+        <!-- Current User Info Card -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-user-check me-2"></i>Reservation for
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="forest-card">
+                    <div class="row">
+                        <div class="col-12 col-md-4 mb-3 mb-md-0">
+                            <div class="text-center">
+                                <i class="fas fa-user fa-2x text-primary mb-2"></i>
+                                <p class="mb-0"><strong>{{ current_user.data.Name }}</strong></p>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 mb-3 mb-md-0">
+                            <div class="text-center">
+                                <i class="fas fa-envelope fa-2x text-info mb-2"></i>
+                                <p class="mb-0"><strong>{{ current_user.data.Email }}</strong></p>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="text-center">
+                                <i class="fas fa-phone fa-2x text-success mb-2"></i>
+                                <p class="mb-0"><strong>{{ current_user.data.Phone }}</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            <i class="fas fa-cog me-1"></i>
+                            To change your details, <a href="{{ url_for('account') }}"
+                                class="text-decoration-none">update your account</a>.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reservation Form Card -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-calendar-plus me-2"></i>Reservation Details
+                </h5>
+            </div>
+            <div class="card-body p-3 p-md-4">
+                <form action="{{ url_for('reserve') }}" method="post" id="reservationForm">
+                    <!-- Date Selection -->
+                    <div class="mb-4">
+                        <label for="date" class="form-label">
+                            <i class="fas fa-calendar-alt me-2"></i>Select Date
+                        </label>
+                        <input type="date" class="form-control" id="date" name="date"
+                            value="{{ datetime.split('T')[0] if datetime else '' }}"
+                            min="{{ min_datetime.split('T')[0] }}" required>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-info-circle me-1"></i>Choose your parking date
+                        </small>
+                    </div>
+
+                    <!-- Time Selection -->
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="fas fa-clock me-2"></i>Select Time (5-minute intervals only)
+                        </label>
+                        <div class="forest-card">
+                            <div class="row">
+                                <div class="col-6">
+                                    <label for="hour" class="form-label small">Hour</label>
+                                    <select class="form-control" id="hour" required>
+                                        <!-- Hours will be populated by JavaScript -->
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <label for="minute" class="form-label small">Minute</label>
+                                    <select class="form-control" id="minute" required>
+                                        <option value="00">00</option>
+                                        <option value="05">05</option>
+                                        <option value="10">10</option>
+                                        <option value="15">15</option>
+                                        <option value="20">20</option>
+                                        <option value="25">25</option>
+                                        <option value="30">30</option>
+                                        <option value="35">35</option>
+                                        <option value="40">40</option>
+                                        <option value="45">45</option>
+                                        <option value="50">50</option>
+                                        <option value="55">55</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <input type="hidden" id="datetime" name="datetime" required>
+                            <small class="form-text text-muted mt-2">
+                                <i class="fas fa-clock me-1"></i>Only 5-minute intervals are available. Past times are
+                                automatically disabled.
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Duration Selection -->
+                    <div class="mb-4">
+                        <label for="duration" class="form-label">
+                            <i class="fas fa-hourglass-half me-2"></i>Parking Duration
+                        </label>
+                        <select class="form-control" id="duration" name="duration" required>
+                            <option value="1" {{ 'selected' if duration==1 else '' }}>1 hour</option>
+                            <option value="2" {{ 'selected' if duration==2 else '' }}>2 hours</option>
+                            <option value="3" {{ 'selected' if duration==3 else '' }}>3 hours</option>
+                            <option value="4" {{ 'selected' if duration==4 else '' }}>4 hours</option>
+                        </select>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-leaf me-1"></i>Longer stays help reduce traffic and emissions
+                        </small>
+                    </div>
+
+                    <!-- Reservation Summary -->
+                    <div class="forest-card mb-4" id="reservation-summary" style="display: none;">
+                        <h6 class="gradient-text mb-3">
+                            <i class="fas fa-clipboard-check me-2"></i>Reservation Summary
+                        </h6>
+                        <div class="row">
+                            <div class="col-12 col-md-6 mb-2 mb-md-0">
+                                <p class="mb-1"><strong>Date:</strong> <span id="summary-date">-</span></p>
+                                <p class="mb-1"><strong>Start Time:</strong> <span id="summary-start">-</span></p>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <p class="mb-1"><strong>Duration:</strong> <span id="summary-duration">-</span></p>
+                                <p class="mb-1"><strong>End Time:</strong> <span id="summary-end">-</span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex flex-column flex-md-row justify-content-center gap-2 gap-md-3">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-calendar-check me-2"></i>Reserve My Spot
+                        </button>
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Reservation Guidelines -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h6 class="gradient-text mb-3">
+                    <i class="fas fa-info-circle me-2"></i>Reservation Guidelines
+                </h6>
+                <div class="row">
+                    <div class="col-12 col-md-6 mb-3 mb-md-0">
+                        <div class="d-flex align-items-start mb-2">
+                            <i class="fas fa-check-circle text-success me-2 mt-1"></i>
+                            <small>You can arrive 15 minutes early</small>
+                        </div>
+                        <div class="d-flex align-items-start mb-2">
+                            <i class="fas fa-check-circle text-success me-2 mt-1"></i>
+                            <small>Entry allowed until reservation end time</small>
+                        </div>
+                        <div class="d-flex align-items-start mb-2">
+                            <i class="fas fa-check-circle text-success me-2 mt-1"></i>
+                            <small>Maximum 3 active reservations</small>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="d-flex align-items-start mb-2">
+                            <i class="fas fa-qrcode text-info me-2 mt-1"></i>
+                            <small>QR code sent via email</small>
+                        </div>
+                        <div class="d-flex align-items-start mb-2">
+                            <i class="fas fa-clock text-warning me-2 mt-1"></i>
+                            <small>5 minutes grace period to exit</small>
+                        </div>
+                        <div class="d-flex align-items-start mb-2">
+                            <i class="fas fa-leaf text-success me-2 mt-1"></i>
+                            <small>Eco-friendly automated system</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Support Section -->
+        <div class="card mt-4">
+            <div class="card-body text-center">
+                <h6 class="gradient-text">
+                    <i class="fas fa-headset me-2"></i>Need Help with Your Reservation?
+                </h6>
+                <p class="text-muted mb-3">Our eco-friendly support team is here to assist you!</p>
+                <div class="d-flex flex-column flex-md-row justify-content-center gap-2 gap-md-3">
+                    <a href="tel:+32489660093" class="btn btn-outline-success btn-sm">
+                        <i class="fas fa-phone me-2"></i>+324 89 66 00 93
+                    </a>
+                    <a href="mailto:carparkingsetting12@gmail.com" class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-envelope me-2"></i>Email Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const dateInput = document.getElementById('date');
+        const hourSelect = document.getElementById('hour');
+        const minuteSelect = document.getElementById('minute');
+        const durationSelect = document.getElementById('duration');
+        const datetimeHidden = document.getElementById('datetime');
+        const form = document.getElementById('reservationForm');
+        const summaryDiv = document.getElementById('reservation-summary');
+        const isMobile = window.innerWidth <= 768;
+
+        // Parse minimum datetime
+        const minDatetime = new Date('{{ min_datetime }}');
+        const today = new Date().toISOString().split('T')[0];
+
+        // Populate hours (0-23)
+        function populateHours() {
+            hourSelect.innerHTML = '';
+            for (let hour = 0; hour < 24; hour++) {
+                const option = document.createElement('option');
+                option.value = hour.toString().padStart(2, '0');
+                option.textContent = hour.toString().padStart(2, '0');
+                hourSelect.appendChild(option);
+            }
+        }
+
+        // Update available times based on selected date
+        function updateAvailableTimes() {
+            const selectedDate = dateInput.value;
+            const currentHour = parseInt(hourSelect.value) || 0;
+            const currentMinute = parseInt(minuteSelect.value) || 0;
+
+            if (selectedDate === today) {
+                // For today, disable past hours and minutes
+                const minHour = minDatetime.getHours();
+                const minMinute = minDatetime.getMinutes();
+
+                // Update hour options
+                Array.from(hourSelect.options).forEach(option => {
+                    const hour = parseInt(option.value);
+                    option.disabled = hour < minHour;
+                });
+
+                // If current hour is the minimum hour, update minute options
+                if (currentHour === minHour) {
+                    Array.from(minuteSelect.options).forEach(option => {
+                        const minute = parseInt(option.value);
+                        option.disabled = minute < minMinute;
+                    });
+                } else if (currentHour > minHour) {
+                    // Enable all minutes for future hours
+                    Array.from(minuteSelect.options).forEach(option => {
+                        option.disabled = false;
+                    });
+                }
+            } else {
+                // For future dates, enable all times
+                Array.from(hourSelect.options).forEach(option => {
+                    option.disabled = false;
+                });
+                Array.from(minuteSelect.options).forEach(option => {
+                    option.disabled = false;
+                });
+            }
+
+            // Ensure valid selections
+            if (hourSelect.options[hourSelect.selectedIndex]?.disabled) {
+                for (let i = 0; i < hourSelect.options.length; i++) {
+                    if (!hourSelect.options[i].disabled) {
+                        hourSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            if (minuteSelect.options[minuteSelect.selectedIndex]?.disabled) {
+                for (let i = 0; i < minuteSelect.options.length; i++) {
+                    if (!minuteSelect.options[i].disabled) {
+                        minuteSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            updateHiddenDateTime();
+            updateSummary();
+        }
+
+        // Update the hidden datetime input
+        function updateHiddenDateTime() {
+            const date = dateInput.value;
+            const hour = hourSelect.value;
+            const minute = minuteSelect.value;
+
+            if (date && hour && minute) {
+                datetimeHidden.value = `${date}T${hour}:${minute}`;
+            }
+        }
+
+        // Update reservation summary
+        function updateSummary() {
+            const date = dateInput.value;
+            const hour = hourSelect.value;
+            const minute = minuteSelect.value;
+            const duration = parseInt(durationSelect.value);
+
+            if (date && hour && minute && duration) {
+                const startTime = `${hour}:${minute}`;
+                const startDate = new Date(`${date}T${startTime}`);
+                const endDate = new Date(startDate.getTime() + duration * 60 * 60 * 1000);
+                const endTime = endDate.toTimeString().slice(0, 5);
+
+                document.getElementById('summary-date').textContent = date;
+                document.getElementById('summary-start').textContent = startTime;
+                document.getElementById('summary-duration').textContent = `${duration} hour${duration > 1 ? 's' : ''}`;
+                document.getElementById('summary-end').textContent = endTime;
+
+                summaryDiv.style.display = 'block';
+            } else {
+                summaryDiv.style.display = 'none';
+            }
+        }
+
+        // Initialize
+        populateHours();
+
+        // Set initial values if provided
+        const initialDatetime = '{{ datetime or "" }}';
+        if (initialDatetime) {
+            const [datePart, timePart] = initialDatetime.split('T');
+            const [hour, minute] = timePart.split(':');
+
+            dateInput.value = datePart;
+            hourSelect.value = hour;
+            minuteSelect.value = minute;
+        } else {
+            // Set to minimum allowed time
+            dateInput.value = minDatetime.toISOString().split('T')[0];
+            hourSelect.value = minDatetime.getHours().toString().padStart(2, '0');
+
+            // Round up to next 5-minute interval
+            const minMinute = minDatetime.getMinutes();
+            const roundedMinute = Math.ceil(minMinute / 5) * 5;
+            const finalMinute = roundedMinute >= 60 ? 0 : roundedMinute;
+            minuteSelect.value = finalMinute.toString().padStart(2, '0');
+
+            if (roundedMinute >= 60) {
+                const newHour = (minDatetime.getHours() + 1) % 24;
+                hourSelect.value = newHour.toString().padStart(2, '0');
+            }
+        }
+
+        // Event listeners
+        dateInput.addEventListener('change', updateAvailableTimes);
+        hourSelect.addEventListener('change', updateAvailableTimes);
+        minuteSelect.addEventListener('change', function () {
+            updateHiddenDateTime();
+            updateSummary();
+        });
+        durationSelect.addEventListener('change', updateSummary);
+
+        // Initial update
+        updateAvailableTimes();
+
+        // Form validation
+        form.addEventListener('submit', function (e) {
+            const selectedDatetime = new Date(datetimeHidden.value);
+            const now = new Date();
+            const minAllowed = new Date(now.getTime() + 5 * 60000); // 5 minutes from now
+
+            if (selectedDatetime < minAllowed) {
+                e.preventDefault();
+                alert('🍃 Car Parking Setting 12\n\nPlease select a time at least 5 minutes from now.');
+                return false;
+            }
+
+            // Show loading state
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-leaf fa-spin me-2"></i>Creating Reservation...';
+            submitBtn.disabled = true;
+
+            // Re-enable after 10 seconds if form doesn't submit
+            setTimeout(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }, 10000);
+        });
+
+        // Mobile-specific enhancements
+        if (isMobile) {
+            // Add touch feedback for mobile form elements
+            document.querySelectorAll('.form-control').forEach(input => {
+                input.addEventListener('focus', function () {
+                    this.style.transform = 'scale(1.02)';
+                    this.style.transition = 'all 0.3s ease';
+                    this.style.boxShadow = '0 4px 15px rgba(45, 80, 22, 0.2)';
+
+                    // Mobile: scroll into view
+                    this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                });
+
+                input.addEventListener('blur', function () {
+                    this.style.transform = 'scale(1)';
+                    this.style.boxShadow = '';
+                });
+            });
+
+            // Touch feedback for buttons
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('touchstart', function () {
+                    this.style.opacity = '0.8';
+                    this.style.transform = 'scale(0.98)';
+                });
+
+                btn.addEventListener('touchend', function () {
+                    this.style.opacity = '1';
+                    this.style.transform = 'scale(1)';
+                });
+            });
+        } else {
+            // Desktop hover effects
+            document.querySelectorAll('.form-control').forEach(input => {
+                input.addEventListener('focus', function () {
+                    this.style.transform = 'scale(1.02)';
+                    this.style.transition = 'all 0.3s ease';
+                    this.style.boxShadow = '0 4px 15px rgba(45, 80, 22, 0.2)';
+                });
+
+                input.addEventListener('blur', function () {
+                    this.style.transform = 'scale(1)';
+                    this.style.boxShadow = '';
+                });
+            });
+
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('mouseenter', function () {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.transition = 'all 0.3s ease';
+                });
+
+                btn.addEventListener('mouseleave', function () {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        }
+
+        // Enhanced accessibility
+        document.querySelectorAll('.btn, .form-control').forEach(element => {
+            element.addEventListener('focus', function () {
+                this.style.outline = '2px solid var(--primary-color)';
+                this.style.outlineOffset = '2px';
+            });
+
+            element.addEventListener('blur', function () {
+                this.style.outline = 'none';
+            });
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

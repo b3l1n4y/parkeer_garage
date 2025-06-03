@@ -1,0 +1,496 @@
+{% extends "base.html" %}
+
+{% block title %}Live Sensors - Car Parking Setting 12{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <!-- Page Header -->
+        <div
+            class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+            <div class="mb-3 mb-md-0">
+                <h1 class="gradient-text mb-0">
+                    <i class="fas fa-seedling me-2"></i>Live Environmental Monitoring
+                </h1>
+                <p class="text-muted">
+                    <i class="fas fa-leaf text-success me-1"></i>
+                    Real-time garage environment data from Car Parking Setting 12
+                </p>
+            </div>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Data Source Info -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="forest-card">
+                    <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center">
+                        <i class="fas fa-database fa-2x text-info me-3 mb-2 mb-md-0"></i>
+                        <div>
+                            <h6 class="gradient-text mb-1">Data Source: Airtable Environment Table</h6>
+                            <small class="text-muted">Sensor data is automatically synchronized from your Arduino to
+                                Airtable and displayed here in real-time.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Connection Status -->
+        <div class="alert alert-info border-0 shadow-sm mb-4" id="connection-status"
+            style="background: linear-gradient(135deg, var(--soft-green), rgba(240, 248, 232, 0.8)); color: var(--dark-color);">
+            <div class="d-flex align-items-center">
+                <span id="status-indicator" class="status-indicator bg-warning me-3"
+                    style="width: 20px; height: 20px; border-radius: 50%; display: inline-block;"></span>
+                <span id="status-text">Connecting to sensor data...</span>
+            </div>
+        </div>
+
+        <!-- Sensor Cards -->
+        <div class="row mb-4">
+            <!-- Temperature Card -->
+            <div class="col-12 col-md-6 mb-3 mb-md-0">
+                <div class="card sensor-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-thermometer-half me-2"></i>Temperature
+                        </h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="forest-card">
+                            <div class="sensor-value gradient-text" id="temperature-value"
+                                style="font-size: 2.5rem; font-weight: bold;">--</div>
+                            <div class="sensor-unit text-muted" style="font-size: 1.2rem;">°C</div>
+                            <div class="mt-3">
+                                <span class="nature-badge" id="temperature-status">Unknown</span>
+                            </div>
+                            <div class="last-updated mt-2 text-muted" id="temperature-updated">
+                                <i class="fas fa-clock me-1"></i>Last updated: --
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Air Quality Card -->
+            <div class="col-12 col-md-6">
+                <div class="card sensor-card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-wind me-2"></i>Air Quality
+                        </h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="forest-card">
+                            <div class="sensor-value gradient-text" id="air-quality-value"
+                                style="font-size: 2.5rem; font-weight: bold;">--</div>
+                            <div class="sensor-unit text-muted" style="font-size: 1.2rem;">PPM</div>
+                            <div class="mt-3">
+                                <span class="nature-badge" id="air-quality-status">Unknown</span>
+                            </div>
+                            <div class="last-updated mt-2 text-muted" id="air-quality-updated">
+                                <i class="fas fa-clock me-1"></i>Last updated: --
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-line me-2"></i>Real-Time Environmental Charts
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="position: relative; height: 300px;">
+                    <canvas id="sensorChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sensor Information -->
+        <div class="row">
+            <div class="col-12 col-md-6 mb-3 mb-md-0">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-thermometer-half me-2"></i>Temperature Ranges
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="forest-card">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge bg-info me-3">Cold</span>
+                                <span>Below 18°C</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="nature-badge me-3">Comfortable</span>
+                                <span>18-24°C</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge me-3"
+                                    style="background: var(--warning-color); color: var(--dark-color);">Warm</span>
+                                <span>24-26°C</span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-danger me-3">Hot</span>
+                                <span>Above 26°C</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-wind me-2"></i>Air Quality Levels
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="forest-card">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="nature-badge me-3">Excellent</span>
+                                <span>0-50 PPM</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge bg-info me-3">Good</span>
+                                <span>50-100 PPM</span>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge me-3"
+                                    style="background: var(--warning-color); color: var(--dark-color);">Moderate</span>
+                                <span>100-150 PPM</span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-danger me-3">Poor</span>
+                                <span>Above 150 PPM</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Environmental Impact Info -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h6 class="gradient-text mb-3">
+                    <i class="fas fa-leaf me-2"></i>Environmental Impact & Automation
+                </h6>
+                <div class="row">
+                    <div class="col-12 col-md-4 mb-3 mb-md-0">
+                        <div class="text-center">
+                            <i class="fas fa-fan fa-2x text-primary mb-2"></i>
+                            <h6>Smart Ventilation</h6>
+                            <p class="small text-muted">Automatic ventilation control based on temperature and air
+                                quality readings</p>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4 mb-3 mb-md-0">
+                        <div class="text-center">
+                            <i class="fas fa-database fa-2x text-info mb-2"></i>
+                            <h6>Data Logging</h6>
+                            <p class="small text-muted">Continuous monitoring and storage for environmental analysis</p>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-seedling fa-2x text-success mb-2"></i>
+                            <h6>Eco-Friendly</h6>
+                            <p class="small text-muted">Energy-efficient sensors promoting sustainable parking solutions
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="alert alert-info mt-3 border-0" style="background: rgba(240, 248, 232, 0.8);">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Note:</strong> Data is automatically collected from your garage sensors and stored in
+                    Airtable. The web interface updates every 5 seconds with the latest readings from Car Parking
+                    Setting 12.
+                </div>
+            </div>
+        </div>
+
+        <!-- Support Section -->
+        <div class="card mt-4">
+            <div class="card-body text-center">
+                <h6 class="gradient-text">
+                    <i class="fas fa-headset me-2"></i>Sensor Support & Maintenance
+                </h6>
+                <p class="text-muted mb-3">Questions about environmental monitoring or sensor readings?</p>
+                <div class="d-flex flex-column flex-md-row justify-content-center gap-2 gap-md-3">
+                    <a href="tel:+32489660093" class="btn btn-outline-success">
+                        <i class="fas fa-phone me-2"></i>+324 89 66 00 93
+                    </a>
+                    <a href="mailto:carparkingsetting12@gmail.com" class="btn btn-outline-info">
+                        <i class="fas fa-envelope me-2"></i>Email Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    // Initialize Socket.IO connection
+    const socket = io();
+
+    // Chart setup with forest theme colors and mobile responsiveness
+    const ctx = document.getElementById('sensorChart').getContext('2d');
+    const isMobile = window.innerWidth <= 768;
+
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Temperature (°C)',
+                data: [],
+                borderColor: 'var(--primary-color)',
+                backgroundColor: 'rgba(45, 80, 22, 0.1)',
+                tension: 0.4,
+                yAxisID: 'y',
+                pointBackgroundColor: 'var(--primary-color)',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: isMobile ? 3 : 4
+            }, {
+                label: 'Air Quality (PPM)',
+                data: [],
+                borderColor: 'var(--success-color)',
+                backgroundColor: 'rgba(34, 139, 34, 0.1)',
+                tension: 0.4,
+                yAxisID: 'y1',
+                pointBackgroundColor: 'var(--success-color)',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: isMobile ? 3 : 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        color: 'var(--dark-color)',
+                        font: {
+                            weight: 'bold',
+                            size: isMobile ? 10 : 12
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: !isMobile,
+                        text: 'Time',
+                        color: 'var(--dark-color)',
+                        font: {
+                            weight: 'bold',
+                            size: isMobile ? 10 : 12
+                        }
+                    },
+                    ticks: {
+                        color: 'var(--dark-color)',
+                        font: {
+                            size: isMobile ? 8 : 10
+                        },
+                        maxTicksLimit: isMobile ? 5 : 10
+                    },
+                    grid: {
+                        color: 'rgba(45, 80, 22, 0.1)'
+                    }
+                },
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: !isMobile,
+                        text: 'Temperature (°C)',
+                        color: 'var(--primary-color)',
+                        font: {
+                            weight: 'bold',
+                            size: isMobile ? 10 : 12
+                        }
+                    },
+                    ticks: {
+                        color: 'var(--primary-color)',
+                        font: {
+                            size: isMobile ? 8 : 10
+                        }
+                    },
+                    grid: {
+                        color: 'rgba(45, 80, 22, 0.1)'
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: !isMobile,
+                        text: 'Air Quality (PPM)',
+                        color: 'var(--success-color)',
+                        font: {
+                            weight: 'bold',
+                            size: isMobile ? 10 : 12
+                        }
+                    },
+                    ticks: {
+                        color: 'var(--success-color)',
+                        font: {
+                            size: isMobile ? 8 : 10
+                        }
+                    },
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                }
+            }
+        }
+    });
+
+    // Socket event handlers
+    socket.on('connect', function () {
+        console.log('Connected to Car Parking Setting 12 sensor system');
+        document.getElementById('status-indicator').style.backgroundColor = 'var(--success-color)';
+        document.getElementById('status-text').textContent = 'Connected - Receiving live data from Car Parking Setting 12';
+        document.getElementById('connection-status').style.background = 'linear-gradient(135deg, var(--soft-green), rgba(240, 248, 232, 0.8))';
+    });
+
+    socket.on('disconnect', function () {
+        console.log('Disconnected from sensor system');
+        document.getElementById('status-indicator').style.backgroundColor = 'var(--danger-color)';
+        document.getElementById('status-text').textContent = 'Disconnected - Trying to reconnect to Car Parking Setting 12...';
+        document.getElementById('connection-status').style.background = 'linear-gradient(135deg, #f8d7da, #f5c6cb)';
+    });
+
+    socket.on('sensor_update', function (data) {
+        console.log('Sensor data received from Car Parking Setting 12:', data);
+
+        // Update temperature
+        document.getElementById('temperature-value').textContent = data.temperature;
+        const tempStatus = document.getElementById('temperature-status');
+        tempStatus.textContent = data.temperature_status.status;
+        tempStatus.className = getStatusBadgeClass(data.temperature_status.color);
+
+        // Update air quality
+        document.getElementById('air-quality-value').textContent = data.air_quality;
+        const airStatus = document.getElementById('air-quality-status');
+        airStatus.textContent = data.air_quality_status.status;
+        airStatus.className = getStatusBadgeClass(data.air_quality_status.color);
+
+        // Update timestamps
+        const timestamp = new Date(data.timestamp).toLocaleTimeString();
+        document.getElementById('temperature-updated').innerHTML = `<i class="fas fa-clock me-1"></i>Last updated: ${timestamp}`;
+        document.getElementById('air-quality-updated').innerHTML = `<i class="fas fa-clock me-1"></i>Last updated: ${timestamp}`;
+
+        // Update chart
+        updateChart(data);
+    });
+
+    function getStatusBadgeClass(color) {
+        switch (color) {
+            case 'success': return 'nature-badge';
+            case 'info': return 'badge bg-info';
+            case 'warning': return 'badge bg-warning text-dark';
+            case 'danger': return 'badge bg-danger';
+            default: return 'badge bg-secondary';
+        }
+    }
+
+    function updateChart(data) {
+        const timestamp = new Date(data.timestamp).toLocaleTimeString();
+
+        // Add new data point
+        chart.data.labels.push(timestamp);
+        chart.data.datasets[0].data.push(data.temperature);
+        chart.data.datasets[1].data.push(data.air_quality);
+
+        // Keep only last 15 data points on mobile, 20 on desktop
+        const maxPoints = isMobile ? 15 : 20;
+        if (chart.data.labels.length > maxPoints) {
+            chart.data.labels.shift();
+            chart.data.datasets[0].data.shift();
+            chart.data.datasets[1].data.shift();
+        }
+
+        chart.update('none'); // Update without animation for real-time feel
+    }
+
+    // Mobile-specific enhancements
+    if (isMobile) {
+        // Add touch feedback for mobile cards
+        document.querySelectorAll('.sensor-card').forEach(card => {
+            card.addEventListener('touchstart', function () {
+                this.style.opacity = '0.9';
+                this.style.transform = 'scale(0.98)';
+            });
+
+            card.addEventListener('touchend', function () {
+                this.style.opacity = '1';
+                this.style.transform = 'scale(1)';
+            });
+        });
+
+        // Adjust sensor value font size for mobile
+        document.querySelectorAll('.sensor-value').forEach(element => {
+            element.style.fontSize = '2rem';
+        });
+
+        // Add swipe gesture hint for chart
+        const chartContainer = document.querySelector('.chart-container');
+        if (chartContainer) {
+            const hint = document.createElement('div');
+            hint.innerHTML = '<small class="text-muted"><i class="fas fa-hand-point-right me-1"></i>Touch chart to interact</small>';
+            hint.style.textAlign = 'center';
+            hint.style.padding = '0.5rem';
+            chartContainer.parentNode.insertBefore(hint, chartContainer);
+        }
+    } else {
+        // Desktop hover effects
+        document.querySelectorAll('.sensor-card').forEach(card => {
+            card.addEventListener('mouseenter', function () {
+                this.style.transform = 'translateY(-5px)';
+                this.style.transition = 'all 0.3s ease';
+            });
+
+            card.addEventListener('mouseleave', function () {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    }
+
+    // Enhanced accessibility
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('focus', function () {
+            this.style.outline = '2px solid var(--primary-color)';
+            this.style.outlineOffset = '2px';
+        });
+
+        btn.addEventListener('blur', function () {
+            this.style.outline = 'none';
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

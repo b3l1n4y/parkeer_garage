@@ -1,0 +1,351 @@
+{% extends "base.html" %}
+
+{% block title %}My Account - Car Parking Setting 12{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <!-- Page Header -->
+        <div
+            class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+            <div class="mb-3 mb-md-0">
+                <h1 class="gradient-text mb-0">
+                    <i class="fas fa-user-cog me-2"></i>Account Settings
+                </h1>
+                <p class="text-muted">
+                    <i class="fas fa-leaf text-success me-1"></i>
+                    Welcome back, {{ current_user.data.Name }}!
+                </p>
+            </div>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Account Settings Card -->
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-leaf me-2"></i>Personal Information & Settings
+                </h4>
+            </div>
+            <div class="card-body p-3 p-md-4">
+                <form method="POST">
+                    <div class="row">
+                        <!-- Personal Information Section -->
+                        <div class="col-12 col-md-6">
+                            <div class="forest-card">
+                                <h5 class="gradient-text mb-3">
+                                    <i class="fas fa-user me-2"></i>Personal Information
+                                </h5>
+
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">
+                                        <i class="fas fa-id-card me-2"></i>Full Name
+                                    </label>
+                                    <input type="text" class="form-control" id="name" name="name"
+                                        value="{{ user.Name or '' }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">
+                                        <i class="fas fa-envelope me-2"></i>Email Address
+                                    </label>
+                                    <input type="email" class="form-control" id="email" name="email"
+                                        value="{{ user.Email or '' }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">
+                                        <i class="fas fa-phone me-2"></i>Phone Number
+                                    </label>
+                                    <input type="tel" class="form-control" id="phone" name="phone"
+                                        value="{{ user.Phone or '' }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Password Change Section -->
+                        <div class="col-12 col-md-6">
+                            <div class="forest-card">
+                                <h5 class="gradient-text mb-3">
+                                    <i class="fas fa-key me-2"></i>Change Password
+                                    <small class="text-muted">(Optional)</small>
+                                </h5>
+
+                                <div class="mb-3">
+                                    <label for="current_password" class="form-label">
+                                        <i class="fas fa-lock me-2"></i>Current Password
+                                    </label>
+                                    <div class="position-relative">
+                                        <input type="password" class="form-control" id="current_password"
+                                            name="current_password">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm position-absolute"
+                                            style="right: 10px; top: 50%; transform: translateY(-50%);"
+                                            onclick="togglePassword('current_password')">
+                                            <i class="fas fa-eye" id="current_password-eye"></i>
+                                        </button>
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>Required only if changing password
+                                    </small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="new_password" class="form-label">
+                                        <i class="fas fa-key me-2"></i>New Password
+                                    </label>
+                                    <div class="position-relative">
+                                        <input type="password" class="form-control" id="new_password"
+                                            name="new_password">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm position-absolute"
+                                            style="right: 10px; top: 50%; transform: translateY(-50%);"
+                                            onclick="togglePassword('new_password')">
+                                            <i class="fas fa-eye" id="new_password-eye"></i>
+                                        </button>
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        <i class="fas fa-lightbulb me-1"></i>Leave blank to keep current password
+                                    </small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="confirm_password" class="form-label">
+                                        <i class="fas fa-check-double me-2"></i>Confirm New Password
+                                    </label>
+                                    <div class="position-relative">
+                                        <input type="password" class="form-control" id="confirm_password"
+                                            name="confirm_password">
+                                        <button type="button" class="btn btn-outline-secondary btn-sm position-absolute"
+                                            style="right: 10px; top: 50%; transform: translateY(-50%);"
+                                            onclick="togglePassword('confirm_password')">
+                                            <i class="fas fa-eye" id="confirm_password-eye"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Statistics -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="forest-card">
+                                <h5 class="gradient-text mb-3">
+                                    <i class="fas fa-chart-line me-2"></i>Account Overview
+                                </h5>
+                                <div class="row text-center">
+                                    <div class="col-12 col-md-4 mb-3 mb-md-0">
+                                        <div class="card border-0" style="background: rgba(255,255,255,0.7);">
+                                            <div class="card-body">
+                                                <i class="fas fa-user-check fa-2x text-success mb-2"></i>
+                                                <h6>Account Status</h6>
+                                                <span class="nature-badge">Active</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-4 mb-3 mb-md-0">
+                                        <div class="card border-0" style="background: rgba(255,255,255,0.7);">
+                                            <div class="card-body">
+                                                <i class="fas fa-calendar-check fa-2x text-primary mb-2"></i>
+                                                <h6>Member Since</h6>
+                                                <small class="text-muted">{{ user.get('CreatedAt', 'Welcome!')
+                                                    }}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <div class="card border-0" style="background: rgba(255,255,255,0.7);">
+                                            <div class="card-body">
+                                                <i class="fas fa-leaf fa-2x" style="color: var(--success-color);"
+                                                    mb-2></i>
+                                                <h6>Eco Points</h6>
+                                                <span class="gradient-text fw-bold">🌱 Green Member</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="d-flex flex-column flex-md-row justify-content-center gap-2 gap-md-3">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-save me-2"></i>Update Account
+                                </button>
+                                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-lg">
+                                    <i class="fas fa-times me-2"></i>Cancel Changes
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Support Section -->
+        <div class="card mt-4">
+            <div class="card-body text-center">
+                <h6 class="gradient-text">
+                    <i class="fas fa-headset me-2"></i>Need Help with Your Account?
+                </h6>
+                <p class="text-muted mb-3">Our eco-friendly support team is here to help!</p>
+                <div class="d-flex flex-column flex-md-row justify-content-center gap-2 gap-md-3">
+                    <a href="tel:+32489660093" class="btn btn-outline-success">
+                        <i class="fas fa-phone me-2"></i>+324 89 66 00 93
+                    </a>
+                    <a href="mailto:carparkingsetting12@gmail.com" class="btn btn-outline-info">
+                        <i class="fas fa-envelope me-2"></i>Email Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+    // Password visibility toggle
+    function togglePassword(fieldId) {
+        const field = document.getElementById(fieldId);
+        const eye = document.getElementById(fieldId + '-eye');
+
+        if (field.type === 'password') {
+            field.type = 'text';
+            eye.className = 'fas fa-eye-slash';
+        } else {
+            field.type = 'password';
+            eye.className = 'fas fa-eye';
+        }
+    }
+
+    // Password strength indicator
+    document.getElementById('new_password').addEventListener('input', function () {
+        const password = this.value;
+        const currentPassword = document.getElementById('current_password');
+        const confirmPassword = document.getElementById('confirm_password');
+
+        if (password) {
+            currentPassword.required = true;
+            confirmPassword.required = true;
+            // Add visual feedback
+            currentPassword.style.borderColor = 'var(--warning-color)';
+            confirmPassword.style.borderColor = 'var(--warning-color)';
+
+            // Password strength visual feedback
+            let strength = 0;
+            if (password.length >= 6) strength++;
+            if (password.match(/[a-z]/)) strength++;
+            if (password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+
+            if (strength < 2) {
+                this.style.borderColor = 'var(--danger-color)';
+            } else if (strength < 4) {
+                this.style.borderColor = 'var(--warning-color)';
+            } else {
+                this.style.borderColor = 'var(--success-color)';
+            }
+        } else {
+            currentPassword.required = false;
+            confirmPassword.required = false;
+            confirmPassword.value = '';
+            // Reset visual feedback
+            currentPassword.style.borderColor = '';
+            confirmPassword.style.borderColor = '';
+            this.style.borderColor = '';
+        }
+    });
+
+    // Confirm password matching with nature-themed validation
+    document.getElementById('confirm_password').addEventListener('input', function () {
+        const newPassword = document.getElementById('new_password').value;
+
+        if (this.value !== newPassword) {
+            this.setCustomValidity('Passwords do not match');
+            this.style.borderColor = 'var(--danger-color)';
+        } else {
+            this.setCustomValidity('');
+            this.style.borderColor = 'var(--success-color)';
+        }
+    });
+
+    // Form submission with loading state
+    document.querySelector('form').addEventListener('submit', function (e) {
+        const submitBtn = document.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+
+        // Check if passwords match before submitting
+        const password = document.getElementById('new_password').value;
+        const confirmPassword = document.getElementById('confirm_password').value;
+
+        if (password && password !== confirmPassword) {
+            e.preventDefault();
+            alert('🍃 Car Parking Setting 12\n\nPasswords do not match. Please check and try again.');
+            return;
+        }
+
+        // Show loading state
+        submitBtn.innerHTML = '<i class="fas fa-leaf fa-spin me-2"></i>Updating Account...';
+        submitBtn.disabled = true;
+
+        // Re-enable after 5 seconds if form doesn't submit
+        setTimeout(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }, 5000);
+    });
+
+    // Add hover effects to form elements
+    document.querySelectorAll('.form-control').forEach(input => {
+        input.addEventListener('focus', function () {
+            this.style.transform = 'scale(1.02)';
+            this.style.transition = 'all 0.3s ease';
+            this.style.boxShadow = '0 4px 15px rgba(45, 80, 22, 0.2)';
+
+            // Mobile: scroll into view
+            if (window.innerWidth <= 768) {
+                this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+
+        input.addEventListener('blur', function () {
+            this.style.transform = 'scale(1)';
+            this.style.boxShadow = '';
+        });
+    });
+
+    // Add hover effects to buttons
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('mouseenter', function () {
+            if (window.innerWidth > 768) { // Only on desktop
+                this.style.transform = 'translateY(-2px)';
+                this.style.transition = 'all 0.3s ease';
+            }
+        });
+
+        btn.addEventListener('mouseleave', function () {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+
+    // Mobile-specific improvements
+    if (window.innerWidth <= 768) {
+        // Add touch feedback for mobile
+        document.querySelectorAll('.btn, .form-control').forEach(element => {
+            element.addEventListener('touchstart', function () {
+                this.style.opacity = '0.8';
+            });
+
+            element.addEventListener('touchend', function () {
+                this.style.opacity = '1';
+            });
+        });
+    }
+</script>
+{% endblock %}
+{% endblock %}
