@@ -1,0 +1,378 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Car Parking Setting 12{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <!-- Page Header -->
+        <div class="text-center mb-4">
+            <h1 class="gradient-text mb-2">
+                <i class="fas fa-user-plus me-2"></i>Create Account
+            </h1>
+            <p class="text-muted">
+                <i class="fas fa-leaf text-success me-1"></i>
+                Join our eco-friendly parking community
+            </p>
+        </div>
+
+        <!-- Registration Card -->
+        <div class="card">
+            <div class="card-header text-center">
+                <h4 class="mb-0">
+                    <i class="fas fa-seedling me-2"></i>Welcome to Car Parking Setting 12
+                </h4>
+                <p class="text-light mb-0">Create your account to start reserving parking spots</p>
+            </div>
+            <div class="card-body p-3 p-md-4">
+                <form method="POST">
+                    <!-- Email Field -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label">
+                            <i class="fas fa-envelope me-2"></i>Email Address
+                        </label>
+                        <input type="email" class="form-control" id="email" name="email"
+                            placeholder="Enter your email address" required>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-shield-alt me-1"></i>We'll use this for login and reservation confirmations
+                        </small>
+                    </div>
+
+                    <!-- Full Name Field -->
+                    <div class="mb-3">
+                        <label for="name" class="form-label">
+                            <i class="fas fa-user me-2"></i>Full Name
+                        </label>
+                        <input type="text" class="form-control" id="name" name="name" placeholder="Enter your full name"
+                            required>
+                    </div>
+
+                    <!-- Phone Number Field -->
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">
+                            <i class="fas fa-phone me-2"></i>Phone Number
+                        </label>
+                        <input type="tel" class="form-control" id="phone" name="phone"
+                            placeholder="Enter your phone number" required>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-info-circle me-1"></i>For emergency contact and reservation updates
+                        </small>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="mb-3">
+                        <label for="password" class="form-label">
+                            <i class="fas fa-lock me-2"></i>Password
+                        </label>
+                        <div class="position-relative">
+                            <input type="password" class="form-control password-input" id="password" name="password"
+                                placeholder="Create a secure password" required>
+                            <button type="button" class="btn btn-outline-secondary password-toggle"
+                                onclick="togglePassword('password')">
+                                <i class="fas fa-eye" id="password-eye"></i>
+                            </button>
+                        </div>
+                        <small class="form-text text-muted">
+                            <i class="fas fa-key me-1"></i>Minimum 6 characters for security
+                        </small>
+                    </div>
+
+                    <!-- Confirm Password Field -->
+                    <div class="mb-4">
+                        <label for="password2" class="form-label">
+                            <i class="fas fa-check-double me-2"></i>Confirm Password
+                        </label>
+                        <div class="position-relative">
+                            <input type="password" class="form-control password-input" id="password2" name="password2"
+                                placeholder="Confirm your password" required>
+                            <button type="button" class="btn btn-outline-secondary password-toggle"
+                                onclick="togglePassword('password2')">
+                                <i class="fas fa-eye" id="password2-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Terms and Conditions -->
+                    <div class="mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="terms" required>
+                            <label class="form-check-label" for="terms">
+                                <i class="fas fa-leaf me-1 text-success"></i>
+                                I agree to the eco-friendly parking terms and conditions
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Register Button -->
+                    <button type="submit" class="btn btn-primary w-100 mb-3">
+                        <i class="fas fa-user-plus me-2"></i>Create My Account
+                    </button>
+                </form>
+
+                <!-- Login Link -->
+                <div class="text-center">
+                    <p class="text-muted mb-0">Already have an account?</p>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-sign-in-alt me-2"></i>Sign In Instead
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Benefits Card -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h6 class="gradient-text text-center mb-3">
+                    <i class="fas fa-star me-2"></i>Why Join Car Parking Setting 12?
+                </h6>
+                <div class="row text-center">
+                    <div class="col-4">
+                        <i class="fas fa-leaf fa-2x text-success mb-2"></i>
+                        <p class="small mb-0"><strong>Eco-Friendly</strong></p>
+                        <p class="small text-muted">Sustainable parking</p>
+                    </div>
+                    <div class="col-4">
+                        <i class="fas fa-clock fa-2x text-info mb-2"></i>
+                        <p class="small mb-0"><strong>24/7 Access</strong></p>
+                        <p class="small text-muted">Reserve anytime</p>
+                    </div>
+                    <div class="col-4">
+                        <i class="fas fa-qrcode fa-2x text-warning mb-2"></i>
+                        <p class="small mb-0"><strong>QR Access</strong></p>
+                        <p class="small text-muted">Easy entry/exit</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Support Info -->
+        <div class="card mt-3">
+            <div class="card-body text-center">
+                <h6 class="gradient-text">
+                    <i class="fas fa-headset me-2"></i>Need Help?
+                </h6>
+                <p class="text-muted mb-2">Having trouble creating your account?</p>
+                <div class="d-flex flex-column flex-md-row justify-content-center gap-2">
+                    <a href="tel:+32489660093" class="btn btn-outline-success btn-sm">
+                        <i class="fas fa-phone me-1"></i>+324 89 66 00 93
+                    </a>
+                    <a href="mailto:carparkingsetting12@gmail.com" class="btn btn-outline-info btn-sm">
+                        <i class="fas fa-envelope me-1"></i>Email Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<style>
+    /* Password toggle button styling */
+    .password-toggle {
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        border: none !important;
+        background: transparent !important;
+        padding: 8px !important;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+    }
+
+    .password-toggle:hover {
+        background: rgba(45, 80, 22, 0.1) !important;
+        border-radius: 50% !important;
+    }
+
+    .password-toggle:focus {
+        box-shadow: none !important;
+        outline: 2px solid var(--primary-color) !important;
+        outline-offset: 2px;
+    }
+
+    .password-input {
+        padding-right: 50px !important;
+        /* Make room for the toggle button */
+    }
+
+    /* Mobile-specific adjustments */
+    @media (max-width: 768px) {
+        .password-toggle {
+            right: 3px;
+            width: 35px;
+            height: 35px;
+            padding: 6px !important;
+        }
+
+        .password-toggle i {
+            font-size: 14px;
+        }
+
+        .password-input {
+            padding-right: 45px !important;
+            font-size: 16px !important;
+            /* Prevents zoom on iOS */
+        }
+    }
+
+    /* Very small screens */
+    @media (max-width: 480px) {
+        .password-toggle {
+            right: 2px;
+            width: 32px;
+            height: 32px;
+            padding: 5px !important;
+        }
+
+        .password-toggle i {
+            font-size: 12px;
+        }
+
+        .password-input {
+            padding-right: 40px !important;
+        }
+    }
+</style>
+
+<script>
+    // Password visibility toggle
+    function togglePassword(fieldId) {
+        const field = document.getElementById(fieldId);
+        const eye = document.getElementById(fieldId + '-eye');
+
+        if (field.type === 'password') {
+            field.type = 'text';
+            eye.className = 'fas fa-eye-slash';
+        } else {
+            field.type = 'password';
+            eye.className = 'fas fa-eye';
+        }
+    }
+
+    // Password strength indicator
+    document.getElementById('password').addEventListener('input', function () {
+        const password = this.value;
+
+        let strength = 0;
+        if (password.length >= 6) strength++;
+        if (password.match(/[a-z]/)) strength++;
+        if (password.match(/[A-Z]/)) strength++;
+        if (password.match(/[0-9]/)) strength++;
+        if (password.match(/[^a-zA-Z0-9]/)) strength++;
+
+        // Visual feedback for password strength
+        if (strength < 2) {
+            this.style.borderColor = 'var(--danger-color)';
+        } else if (strength < 4) {
+            this.style.borderColor = 'var(--warning-color)';
+        } else {
+            this.style.borderColor = 'var(--success-color)';
+        }
+    });
+
+    // Password confirmation validation
+    document.getElementById('password2').addEventListener('input', function () {
+        const password = document.getElementById('password').value;
+        const confirmPassword = this.value;
+
+        if (confirmPassword && password !== confirmPassword) {
+            this.setCustomValidity('Passwords do not match');
+            this.style.borderColor = 'var(--danger-color)';
+        } else {
+            this.setCustomValidity('');
+            this.style.borderColor = confirmPassword ? 'var(--success-color)' : '';
+        }
+    });
+
+    // Form submission with loading state
+    document.querySelector('form').addEventListener('submit', function (e) {
+        const submitBtn = document.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+
+        // Check if passwords match before submitting
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('password2').value;
+
+        if (password !== confirmPassword) {
+            e.preventDefault();
+            alert('🍃 Car Parking Setting 12\n\nPasswords do not match. Please check and try again.');
+            return;
+        }
+
+        // Show loading state
+        submitBtn.innerHTML = '<i class="fas fa-leaf fa-spin me-2"></i>Creating Account...';
+        submitBtn.disabled = true;
+
+        // Re-enable after 5 seconds if form doesn't submit
+        setTimeout(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }, 5000);
+    });
+
+    // Add hover effects to form elements
+    document.querySelectorAll('.form-control').forEach(input => {
+        input.addEventListener('focus', function () {
+            this.style.transform = 'scale(1.02)';
+            this.style.transition = 'all 0.3s ease';
+            this.style.boxShadow = '0 4px 15px rgba(45, 80, 22, 0.2)';
+
+            // Mobile: scroll into view
+            if (window.innerWidth <= 768) {
+                this.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+
+        input.addEventListener('blur', function () {
+            this.style.transform = 'scale(1)';
+            this.style.boxShadow = '';
+        });
+    });
+
+    // Add hover effects to buttons (desktop only)
+    if (window.innerWidth > 768) {
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('mouseenter', function () {
+                this.style.transform = 'translateY(-2px)';
+                this.style.transition = 'all 0.3s ease';
+            });
+
+            btn.addEventListener('mouseleave', function () {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+    }
+
+    // Mobile-specific improvements
+    if (window.innerWidth <= 768) {
+        // Add touch feedback for mobile
+        document.querySelectorAll('.btn, .form-control').forEach(element => {
+            element.addEventListener('touchstart', function () {
+                this.style.opacity = '0.8';
+            });
+
+            element.addEventListener('touchend', function () {
+                this.style.opacity = '1';
+            });
+        });
+
+        // Enhanced touch feedback for password toggles
+        document.querySelectorAll('.password-toggle').forEach(toggle => {
+            toggle.addEventListener('touchstart', function () {
+                this.style.backgroundColor = 'rgba(45, 80, 22, 0.2)';
+                this.style.borderRadius = '50%';
+            });
+
+            toggle.addEventListener('touchend', function () {
+                this.style.backgroundColor = 'transparent';
+            });
+        });
+    }
+</script>
+{% endblock %}
+{% endblock %}
