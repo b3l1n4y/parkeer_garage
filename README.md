@@ -7,7 +7,7 @@ Dit project bevat alle code voor een slim parkeersysteem met:
 ## Mappenstructuur
 
 ```
-/PlatformIO/   → Embedded code voor Arduino (C++/PlatformIO)
+/PlatformIO/ → Embedded code voor Arduino (C++/PlatformIO)
 /PythonCode/ → Python webservercode voor Raspberry Pi (Flask)
 ```
 
