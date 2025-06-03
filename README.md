@@ -11,10 +11,6 @@ Dit project bevat alle code voor een slim parkeersysteem met:
 /PythonCode/ → Python webservercode voor Raspberry Pi (Flask)
 ```
 
-## Installatie
-
-Zie de [docs/INSTALL.md](docs/INSTALL.md) voor installatie-instructies voor zowel Arduino als Raspberry Pi.
-
 ## Gebruik
 
 - Maak een reservering via de webapplicatie (Raspberry Pi)
