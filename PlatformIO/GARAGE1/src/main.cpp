@@ -30,7 +30,7 @@ const long TIMEZONE_OFFSET_SECONDS = TIMEZONE_OFFSET_HOURS * 3600;
 
 // Time validation settings
 const int EARLY_MINUTES_ALLOWED = 15; // Can scan 15 minutes early
-const int LATE_MINUTES_ALLOWED = 10;  // Can scan 10 minutes late
+const int LATE_MINUTES_ALLOWED = 60;  // Can scan 10 minutes late
 const int EXPIRATION_MINUTES = 10;    // Auto-expire after 10 minutes
 const int EXIT_GRACE_MINUTES = 5;     // 5 minutes grace period after end time
 
@@ -42,23 +42,6 @@ AirQualitySensor airSensor(A2);
 
 // Environmental control pins
 int Relay = 9;
-byte pirSensorPin = 11;
-byte pirIndicator = 13;
-const int ledPin = 4;
-
-// LDR sensor configuration with individual thresholds
-const int ENTRY_LDR_PIN = A0;
-const int EXIT_LDR_PIN = A1;
-
-// Individual thresholds based on each sensor's baseline
-int entryLDRBaseline = 0;
-int exitLDRBaseline = 0;
-int entryLDRThreshold = 0; // Will be calculated based on baseline
-int exitLDRThreshold = 0;  // Will be calculated based on baseline
-
-// Car detection state tracking
-bool entryCarDetected = false; // Track if car is currently passing
-bool exitCarDetected = false;  // Track if car is currently passing
 
 // Servo configuration
 Servo entryServo; // Servo on pin 3 for entry (QR system)
@@ -144,11 +127,8 @@ void openEntryServo();
 void openExitServo();
 void closeEntryServo();
 void closeExitServo();
-void checkLDRSensors();
-void calibrateLDRSensors();
 void sendEnvironmentalDataToAirtable(float temperature, int airQuality);
 void checkEnvironment();
-void checkPIR();
 void handleHTTPRequests();
 bool checkQRCodeStatus(String qrCode, bool *isFirstScan);
 bool updateTimestamp(String qrCode, bool isEntry);
@@ -164,9 +144,6 @@ void setup()
 
   // Initialize environmental sensors
   pinMode(Relay, OUTPUT);
-  pinMode(pirSensorPin, INPUT);
-  pinMode(pirIndicator, OUTPUT);
-  pinMode(ledPin, OUTPUT);
   digitalWrite(Relay, LOW);
 
   // Initialize OLED display
@@ -190,14 +167,6 @@ void setup()
   dht.begin();
   airSensor.init();
   Serial.println("Environmental sensors initialized");
-
-  // Initialize LDR sensors
-  pinMode(ENTRY_LDR_PIN, INPUT);
-  pinMode(EXIT_LDR_PIN, INPUT);
-  Serial.println("LDR sensors initialized on pins A0 (Entry) and A1 (Exit)");
-
-  // Calibrate LDR sensors (get baseline readings)
-  calibrateLDRSensors();
 
   // Initialize servos
   entryServo.attach(ENTRY_SERVO_PIN);
@@ -239,9 +208,6 @@ void setup()
   Serial.println("QR Code System: Scan QR codes for entry/exit");
   Serial.println("Environmental System: Temperature, Air Quality, PIR monitoring");
   Serial.println("HTTP API: /entry-gate and /exit-gate endpoints");
-  Serial.println("Time window: 15 minutes early to 10 minutes late");
-  Serial.println("Auto-expiration: 10 minutes after start time");
-  Serial.println("LDR detection: Individual thresholds for each sensor");
 }
 
 // OLED Display functions
@@ -475,69 +441,13 @@ void showTimeoutScreen()
   displayUpdateTime = millis();
 }
 
-void calibrateLDRSensors()
-{
-  Serial.println("Calibrating LDR sensors...");
-  Serial.println("Make sure no cars are blocking the sensors for 3 seconds");
-
-  delay(3000); // Give time for setup
-
-  // Take multiple readings and average them
-  long entrySum = 0;
-  long exitSum = 0;
-  int samples = 10;
-
-  for (int i = 0; i < samples; i++)
-  {
-    entrySum += analogRead(ENTRY_LDR_PIN);
-    exitSum += analogRead(EXIT_LDR_PIN);
-    delay(100);
-  }
-
-  entryLDRBaseline = entrySum / samples;
-  exitLDRBaseline = exitSum / samples;
-
-  // Much more sensitive thresholds based on actual readings
-  if (entryLDRBaseline > 900)
-  {
-    entryLDRThreshold = 10; // Very sensitive for stable high-baseline sensors
-  }
-  else if (entryLDRBaseline > 500)
-  {
-    entryLDRThreshold = 30; // Moderate sensitivity
-  }
-  else
-  {
-    entryLDRThreshold = entryLDRBaseline * 0.3; // 30% for dark sensors
-  }
-
-  if (exitLDRBaseline > 500)
-  {
-    exitLDRThreshold = exitLDRBaseline * 0.3;
-  }
-  else
-  {
-    exitLDRThreshold = exitLDRBaseline * 0.3;
-  }
-
-  Serial.print("Entry LDR baseline: ");
-  Serial.println(entryLDRBaseline);
-  Serial.print("Entry LDR threshold: ");
-  Serial.println(entryLDRThreshold);
-  Serial.print("Exit LDR baseline: ");
-  Serial.println(exitLDRBaseline);
-  Serial.print("Exit LDR threshold: ");
-  Serial.println(exitLDRThreshold);
-  Serial.println("LDR calibration complete");
-}
-
 void openEntryServo()
 {
   entryServo.write(SERVO_OPEN_ANGLE);
   entryServoOpen = true;
   waitingForEntryCar = true;
   entryServoOpenTime = millis();
-  Serial.println("🚪 ENTRY SERVO OPENED (Pin 3) - Waiting for car to pass");
+  Serial.println("ðŸšª ENTRY SERVO OPENED (Pin 3) - Waiting for car to pass");
 }
 
 void openExitServo()
@@ -546,7 +456,7 @@ void openExitServo()
   exitServoOpen = true;
   waitingForExitCar = true;
   exitServoOpenTime = millis();
-  Serial.println("🚪 EXIT SERVO OPENED (Pin 6) - Waiting for car to pass");
+  Serial.println("ðŸšª EXIT SERVO OPENED (Pin 6) - Waiting for car to pass");
 }
 
 void closeEntryServo()
@@ -554,8 +464,7 @@ void closeEntryServo()
   entryServo.write(SERVO_CLOSED_ANGLE);
   entryServoOpen = false;
   waitingForEntryCar = false;
-  entryCarDetected = false; // Reset detection state
-  Serial.println("🔒 ENTRY SERVO CLOSED (Pin 3) - Car detected and passed");
+  Serial.println("ðŸ”’ ENTRY SERVO CLOSED (Pin 3) - Car detected and passed");
 }
 
 void closeExitServo()
@@ -563,84 +472,9 @@ void closeExitServo()
   exitServo.write(SERVO_CLOSED_ANGLE);
   exitServoOpen = false;
   waitingForExitCar = false;
-  exitCarDetected = false; // Reset detection state
-  Serial.println("🔒 EXIT SERVO CLOSED (Pin 6) - Car detected and passed");
+  Serial.println("ðŸ”’ EXIT SERVO CLOSED (Pin 6) - Car detected and passed");
 }
 
-void checkLDRSensors()
-{
-  unsigned long currentTime = millis();
-
-  // Read current LDR values
-  int entryLDRValue = analogRead(ENTRY_LDR_PIN);
-  int exitLDRValue = analogRead(EXIT_LDR_PIN);
-
-  // Check entry gate with very sensitive detection
-  if (waitingForEntryCar && entryServoOpen)
-  {
-    int entryDifference = abs(entryLDRBaseline - entryLDRValue);
-
-    // Check if car is currently blocking the sensor (any significant change)
-    if (entryDifference >= entryLDRThreshold)
-    {
-      if (!entryCarDetected)
-      {
-        entryCarDetected = true;
-        Serial.print("🚗 Car entering - sensor change detected! Difference: ");
-        Serial.print(entryDifference);
-        Serial.print(" (LDR value: ");
-        Serial.print(entryLDRValue);
-        Serial.println(")");
-      }
-    }
-    // Check if car has finished passing (back to baseline)
-    else if (entryCarDetected && entryDifference < (entryLDRThreshold / 2))
-    {
-      Serial.print("🚗 Car finished passing entry gate! LDR value: ");
-      Serial.print(entryLDRValue);
-      Serial.print(" (difference: ");
-      Serial.print(entryDifference);
-      Serial.println(")");
-      entryCarDetected = false;
-      closeEntryServo();
-    }
-    // Safety timeout - close gate after 30 seconds even if no car detected
-    else if (currentTime - entryServoOpenTime > SERVO_TIMEOUT)
-    {
-      Serial.println("⏰ Entry gate timeout - closing for safety");
-      entryCarDetected = false;
-      closeEntryServo();
-    }
-  }
-
-  // Check exit gate
-  if (waitingForExitCar && exitServoOpen)
-  {
-    int exitDifference = abs(exitLDRBaseline - exitLDRValue);
-
-    if (exitDifference >= exitLDRThreshold)
-    {
-      if (!exitCarDetected)
-      {
-        exitCarDetected = true;
-        Serial.println("🚗 Car exiting - sensor blocked");
-      }
-    }
-    else if (exitCarDetected && exitDifference < (exitLDRThreshold / 2))
-    {
-      Serial.print("🚗 Car finished passing exit gate! LDR value: ");
-      Serial.println(exitLDRValue);
-      exitCarDetected = false;
-      closeExitServo();
-    }
-    else if (currentTime - exitServoOpenTime > SERVO_TIMEOUT)
-    {
-      Serial.println("⏰ Exit gate timeout - closing for safety");
-      exitCarDetected = false;
-      closeExitServo();
-    }
-  }
-}
 
 void sendEnvironmentalDataToAirtable(float temperature, int airQuality)
 {
@@ -716,7 +550,7 @@ void checkEnvironment()
   if (temperature > 26)
   {
     digitalWrite(Relay, HIGH);
-    Serial.println("🌡️ Ventilation ON (High temp: " + String(temperature) + "°C)");
+    Serial.println("ðŸŒ¡ï¸ Ventilation ON (High temp: " + String(temperature) + "Â°C)");
     Serial.println("DEBUG: Relay pin 9 set to HIGH");
   }
   else
@@ -724,7 +558,7 @@ void checkEnvironment()
     if (quality == airSensor.FRESH_AIR || quality == airSensor.LOW_POLLUTION)
     {
       digitalWrite(Relay, LOW);
-      Serial.println("🌿 Ventilation OFF (Good air quality)");
+      Serial.println("ðŸŒ¿ Ventilation OFF (Good air quality)");
       Serial.println("DEBUG: Relay pin 9 set to LOW");
 
       // Force multiple attempts to turn off relay
@@ -737,7 +571,7 @@ void checkEnvironment()
     else if (quality == airSensor.HIGH_POLLUTION || quality == airSensor.FORCE_SIGNAL)
     {
       digitalWrite(Relay, HIGH);
-      Serial.println("💨 Ventilation ON (Poor air quality)");
+      Serial.println("ðŸ’¨ Ventilation ON (Poor air quality)");
       Serial.println("DEBUG: Relay pin 9 set to HIGH");
     }
   }
@@ -747,27 +581,6 @@ void checkEnvironment()
   {
     sendEnvironmentalDataToAirtable(temperature, sensorValue);
     lastSend = millis();
-  }
-}
-
-void checkPIR()
-{
-  byte state = digitalRead(pirSensorPin);
-  digitalWrite(pirIndicator, state);
-  if (state == 1)
-  {
-    digitalWrite(ledPin, HIGH);
-    // Only print occasionally to avoid spam
-    static unsigned long lastPIRMessage = 0;
-    if (millis() - lastPIRMessage > 5000)
-    {
-      Serial.println("👤 Motion detected in garage area!");
-      lastPIRMessage = millis();
-    }
-  }
-  else
-  {
-    digitalWrite(ledPin, LOW);
   }
 }
 
@@ -859,8 +672,8 @@ void initializeTime()
 
   if (!timeSet)
   {
-    Serial.println("❌ Failed to get time from NTP server after 15 attempts");
-    Serial.println("⚠️ System will continue but time may be incorrect");
+    Serial.println("âŒ Failed to get time from NTP server after 15 attempts");
+    Serial.println("âš ï¸ System will continue but time may be incorrect");
     timeInitialized = false;
   }
 }
@@ -870,7 +683,7 @@ void syncTimeWithNTP()
 {
   if (millis() - lastTimeSync > TIME_SYNC_INTERVAL)
   {
-    Serial.println("🔄 Syncing time with NTP server...");
+    Serial.println("ðŸ”„ Syncing time with NTP server...");
 
     if (timeClient.update())
     {
@@ -883,19 +696,19 @@ void syncTimeWithNTP()
         RTC.setTime(timeToSet);
         lastTimeSync = millis();
         timeInitialized = true;
-        Serial.println("✅ Time sync successful");
+        Serial.println("âœ… Time sync successful");
         Serial.print("New Brussels time: ");
         printCurrentTime();
       }
       else
       {
-        Serial.print("❌ Invalid epoch from NTP: ");
+        Serial.print("âŒ Invalid epoch from NTP: ");
         Serial.println(epochTime);
       }
     }
     else
     {
-      Serial.println("❌ NTP sync failed");
+      Serial.println("âŒ NTP sync failed");
     }
   }
 }
@@ -983,7 +796,7 @@ bool expireReservation(String reservationId, String reason)
       String statusLine = client.readStringUntil('\n');
       if (statusLine.indexOf("200 OK") > 0)
       {
-        Serial.println("✅ Reservation expired successfully");
+        Serial.println("âœ… Reservation expired successfully");
         client.stop();
         return true;
       }
@@ -997,7 +810,7 @@ bool isWithinAllowedTimeWindow(String reservationDate, String startTime, String 
 {
   if (!timeInitialized)
   {
-    Serial.println("⚠️ Time not available - allowing scan");
+    Serial.println("âš ï¸ Time not available - allowing scan");
     return true;
   }
 
@@ -1060,7 +873,7 @@ bool isWithinAllowedTimeWindow(String reservationDate, String startTime, String 
 
   if (!isCorrectDate)
   {
-    Serial.println("❌ Wrong date for reservation");
+    Serial.println("âŒ Wrong date for reservation");
     return false;
   }
 
@@ -1110,7 +923,7 @@ bool isWithinAllowedTimeWindow(String reservationDate, String startTime, String 
   // Check if reservation should be expired (10 minutes after start time)
   if (currentTotalMinutes > expirationTime)
   {
-    Serial.println("⏰ Reservation has expired (10 minutes after start time)");
+    Serial.println("â° Reservation has expired (10 minutes after start time)");
     expireReservation(reservationId, "Auto-expired: 10 minutes after start time");
     return false;
   }
@@ -1118,18 +931,18 @@ bool isWithinAllowedTimeWindow(String reservationDate, String startTime, String 
   // Check if current time is within allowed ENTRY window (15 min early to end time)
   if (currentTotalMinutes >= earliestAllowed && currentTotalMinutes <= entryLatestAllowed)
   {
-    Serial.println("✅ Within allowed ENTRY time window");
+    Serial.println("âœ… Within allowed ENTRY time window");
     return true;
   }
   // Special case: Allow EXIT during grace period (5 minutes after end time)
   else if (currentTotalMinutes > endTotalMinutes && currentTotalMinutes <= latestAllowed)
   {
-    Serial.println("⚠️ GRACE PERIOD: Exit allowed (entry not permitted)");
+    Serial.println("âš ï¸ GRACE PERIOD: Exit allowed (entry not permitted)");
     return true; // Allow for exit scans only
   }
   else
   {
-    Serial.println("❌ Outside allowed time window");
+    Serial.println("âŒ Outside allowed time window");
     if (currentTotalMinutes < earliestAllowed)
     {
       int minutesTooEarly = earliestAllowed - currentTotalMinutes;
@@ -1143,7 +956,7 @@ bool isWithinAllowedTimeWindow(String reservationDate, String startTime, String 
       Serial.print("Entry window closed ");
       Serial.print(minutesTooLate);
       Serial.println(" minutes ago");
-      Serial.println("🚫 ENTRY PERIOD EXPIRED - Contact support: +32 489 66 00 93");
+      Serial.println("ðŸš« ENTRY PERIOD EXPIRED - Contact support: +32 489 66 00 93");
     }
     return false;
   }
@@ -1243,7 +1056,7 @@ bool checkQRCodeStatus(String qrCode, bool *isFirstScan)
       {
         String statusLower = status;
         statusLower.toLowerCase();
-        Serial.print("❌ This reservation has been ");
+        Serial.print("âŒ This reservation has been ");
         Serial.println(statusLower);
         return false;
       }
@@ -1271,7 +1084,7 @@ bool checkQRCodeStatus(String qrCode, bool *isFirstScan)
       // If both entry and exit times exist, this QR code has been used twice already
       if (hasEntryTime && hasExitTime)
       {
-        Serial.println("⚠️ QR code has already been used for both entry and exit");
+        Serial.println("âš ï¸ QR code has already been used for both entry and exit");
         return false;
       }
 
@@ -1346,7 +1159,7 @@ bool updateTimestamp(String qrCode, bool isEntry)
 
       if (statusLine.indexOf("200 OK") > 0)
       {
-        Serial.print("✅ ");
+        Serial.print("âœ… ");
         Serial.print(isEntry ? "Entry" : "Exit");
         Serial.print(" time recorded and status updated to ");
         Serial.println(newStatus);
@@ -1357,7 +1170,7 @@ bool updateTimestamp(String qrCode, bool isEntry)
       }
       else
       {
-        Serial.println("❌ Failed to update timestamp and status: " + statusLine);
+        Serial.println("âŒ Failed to update timestamp and status: " + statusLine);
         client.stop();
         return false;
       }
@@ -1400,7 +1213,7 @@ bool isDuplicateScan(String qrData)
   {
     if (currentTime - processingStartTime < PROCESSING_LOCKOUT)
     {
-      Serial.println("⏸️ System is processing previous scan, please wait...");
+      Serial.println("â¸ï¸ System is processing previous scan, please wait...");
       return true; // Treat as duplicate during processing
     }
     else
@@ -1414,7 +1227,7 @@ bool isDuplicateScan(String qrData)
   if (qrData == lastScannedCode && (currentTime - lastScanTime < SCAN_COOLDOWN))
   {
     unsigned long remainingCooldown = (SCAN_COOLDOWN - (currentTime - lastScanTime)) / 1000;
-    Serial.print("🔄 Same QR code scanned too quickly. Please wait ");
+    Serial.print("ðŸ”„ Same QR code scanned too quickly. Please wait ");
     Serial.print(remainingCooldown);
     Serial.println(" more seconds.");
     return true;
@@ -1440,9 +1253,6 @@ void loop()
   // Handle HTTP requests for gate control
   handleHTTPRequests();
 
-  // Check LDR sensors for car detection (QR system)
-  checkLDRSensors();
-
   // Environmental monitoring
   unsigned long currentTime = millis();
   if (currentTime - lastPollutionCheck >= pollutionInterval)
@@ -1451,11 +1261,18 @@ void loop()
     lastPollutionCheck = currentTime;
   }
 
-  if (currentTime - lastPIRCheck >= pirInterval)
+  // --- SERVO AUTO-CLOSE LOGIC (5 seconds) ---
+  if (entryServoOpen && (currentTime - entryServoOpenTime >= 5000))
   {
-    checkPIR();
-    lastPIRCheck = currentTime;
+    closeEntryServo();
+    Serial.println("🔒 Entry servo auto-closed after 5 seconds");
   }
+  if (exitServoOpen && (currentTime - exitServoOpenTime >= 5000))
+  {
+    closeExitServo();
+    Serial.println("🔒 Exit servo auto-closed after 5 seconds");
+  }
+  // ------------------------------------------
 
   // Update OLED display
   updateOLEDDisplay();
@@ -1505,7 +1322,7 @@ void loop()
           {
             Serial.println("✅ Entry recorded successfully");
             showSuccessScreen(true, qrData);
-            openEntryServo();
+            openEntryServo(); // This sets entryServoOpenTime
           }
           else
           {
@@ -1519,7 +1336,7 @@ void loop()
           {
             Serial.println("✅ Exit recorded successfully");
             showSuccessScreen(false, qrData);
-            openExitServo();
+            openExitServo(); // This sets exitServoOpenTime
           }
           else
           {
