@@ -62,9 +62,7 @@ bool waitingForExitCar = false;  // Flag to track if we're waiting for a car to 
 
 // Environmental monitoring intervals
 unsigned long lastPollutionCheck = 0;
-unsigned long lastPIRCheck = 0;
 const unsigned long pollutionInterval = 1000;
-const unsigned long pirInterval = 500;
 
 // FIXED: NTP Client setup with proper timezone offset
 WiFiUDP ntpUDP;
