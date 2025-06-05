@@ -50,7 +50,7 @@
                         </div>
                     </div>
 
-                    <!-- Add this after the password field in your login form -->
+                    <!-- Remember me & Forgot password -->
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="remember">
@@ -104,7 +104,6 @@
                 </div>
             </div>
         </div>
-
         <!-- Support Info -->
         <div class="card mt-3">
             <div class="card-body text-center">
@@ -124,17 +123,19 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
 {% block scripts %}
 <style>
-    /* Password toggle button styling */
+    /* Password Toggle Button: Fixes sinking/sinking on hover or mobile */
     .password-toggle {
         position: absolute;
         right: 5px;
         top: 50%;
-        transform: translateY(-50%);
+        transform: translateY(-50%) translateZ(0); /* Add translateZ(0) for hardware acceleration */
         border: none !important;
         background: transparent !important;
+        border-radius: 50% !important;
         padding: 8px !important;
         width: 40px;
         height: 40px;
@@ -142,24 +143,30 @@
         align-items: center;
         justify-content: center;
         z-index: 10;
+        transition: background 0.15s;
+        /* Prevent any inherited transform/translate from affecting this element */
+        will-change: transform;
     }
-
-    .password-toggle:hover {
-        background: rgba(45, 80, 22, 0.1) !important;
-        border-radius: 50% !important;
-    }
-
+    .password-toggle:hover,
+    .password-toggle:active,
     .password-toggle:focus {
+        background: rgba(45, 80, 22, 0.1) !important;
+        transform: translateY(-50%) translateZ(0) !important; /* IMPORTANT: Keep this consistent */
+        outline: none !important;
         box-shadow: none !important;
-        outline: 2px solid var(--primary-color) !important;
-        outline-offset: 2px;
     }
-
     .password-input {
         padding-right: 50px !important;
-        /* Make room for the toggle button */
+        /* Prevent input focus/hover from affecting its parent or siblings */
+        transition: box-shadow 0.3s ease, transform 0.3s ease;
     }
-
+    .password-input:focus {
+        box-shadow: 0 0 0 0.2rem rgba(45, 80, 22, 0.25) !important;
+        transform: scale(1.02);
+    }
+    .password-input:hover {
+        transform: scale(1.02);
+    }
     /* Mobile-specific adjustments */
     @media (max-width: 768px) {
         .password-toggle {
@@ -168,18 +175,14 @@
             height: 35px;
             padding: 6px !important;
         }
-
         .password-toggle i {
             font-size: 14px;
         }
-
         .password-input {
             padding-right: 45px !important;
             font-size: 16px !important;
-            /* Prevents zoom on iOS */
         }
     }
-
     /* Very small screens */
     @media (max-width: 480px) {
         .password-toggle {
@@ -188,14 +191,17 @@
             height: 32px;
             padding: 5px !important;
         }
-
         .password-toggle i {
             font-size: 12px;
         }
-
         .password-input {
             padding-right: 40px !important;
         }
+    }
+    /* Make sure the parent of the input and button stays stable */
+    .position-relative {
+        position: relative;
+        min-height: auto;
     }
 </style>
 
@@ -204,7 +210,6 @@
     function togglePassword(fieldId) {
         const field = document.getElementById(fieldId);
         const eye = document.getElementById(fieldId + '-eye');
-
         if (field.type === 'password') {
             field.type = 'text';
             eye.className = 'fas fa-eye-slash';
@@ -230,19 +235,17 @@
         }, 5000);
     });
 
-    // Add hover effects to form elements
+    // Add hover effects to form elements (but exclude the password toggle)
     document.querySelectorAll('.form-control').forEach(input => {
         input.addEventListener('focus', function () {
             this.style.transform = 'scale(1.02)';
             this.style.transition = 'all 0.3s ease';
             this.style.boxShadow = '0 4px 15px rgba(45, 80, 22, 0.2)';
-
             // Mobile: scroll into view
             if (window.innerWidth <= 768) {
                 this.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         });
-
         input.addEventListener('blur', function () {
             this.style.transform = 'scale(1)';
             this.style.boxShadow = '';
@@ -251,12 +254,11 @@
 
     // Add hover effects to buttons (desktop only)
     if (window.innerWidth > 768) {
-        document.querySelectorAll('.btn').forEach(btn => {
+        document.querySelectorAll('.btn:not(.password-toggle)').forEach(btn => {
             btn.addEventListener('mouseenter', function () {
                 this.style.transform = 'translateY(-2px)';
                 this.style.transition = 'all 0.3s ease';
             });
-
             btn.addEventListener('mouseleave', function () {
                 this.style.transform = 'translateY(0)';
             });
@@ -266,26 +268,24 @@
     // Mobile-specific improvements
     if (window.innerWidth <= 768) {
         // Add touch feedback for mobile
-        document.querySelectorAll('.btn, .form-control').forEach(element => {
+        document.querySelectorAll('.btn:not(.password-toggle), .form-control').forEach(element => {
             element.addEventListener('touchstart', function () {
                 this.style.opacity = '0.8';
             });
-
             element.addEventListener('touchend', function () {
                 this.style.opacity = '1';
             });
         });
-
         // Enhanced touch feedback for password toggle
-        document.querySelector('.password-toggle').addEventListener('touchstart', function () {
-            this.style.backgroundColor = 'rgba(45, 80, 22, 0.2)';
-            this.style.borderRadius = '50%';
-        });
-
-        document.querySelector('.password-toggle').addEventListener('touchend', function () {
-            this.style.backgroundColor = 'transparent';
+        document.querySelectorAll('.password-toggle').forEach(toggle => {
+            toggle.addEventListener('touchstart', function () {
+                this.style.backgroundColor = 'rgba(45, 80, 22, 0.2)';
+                this.style.borderRadius = '50%';
+            });
+            toggle.addEventListener('touchend', function () {
+                this.style.backgroundColor = 'transparent';
+            });
         });
     }
 </script>
-{% endblock %}
 {% endblock %}
