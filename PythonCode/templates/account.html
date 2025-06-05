@@ -6,8 +6,7 @@
 <div class="row justify-content-center">
     <div class="col-md-10 col-lg-8">
         <!-- Page Header -->
-        <div
-            class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4">
             <div class="mb-3 mb-md-0">
                 <h1 class="gradient-text mb-0">
                     <i class="fas fa-user-cog me-2"></i>Account Settings
@@ -38,29 +37,23 @@
                                 <h5 class="gradient-text mb-3">
                                     <i class="fas fa-user me-2"></i>Personal Information
                                 </h5>
-
                                 <div class="mb-3">
                                     <label for="name" class="form-label">
                                         <i class="fas fa-id-card me-2"></i>Full Name
                                     </label>
-                                    <input type="text" class="form-control" id="name" name="name"
-                                        value="{{ user.Name or '' }}" required>
+                                    <input type="text" class="form-control" id="name" name="name" value="{{ user.Name or '' }}" required>
                                 </div>
-
                                 <div class="mb-3">
                                     <label for="email" class="form-label">
                                         <i class="fas fa-envelope me-2"></i>Email Address
                                     </label>
-                                    <input type="email" class="form-control" id="email" name="email"
-                                        value="{{ user.Email or '' }}" required>
+                                    <input type="email" class="form-control" id="email" name="email" value="{{ user.Email or '' }}" required>
                                 </div>
-
                                 <div class="mb-3">
                                     <label for="phone" class="form-label">
                                         <i class="fas fa-phone me-2"></i>Phone Number
                                     </label>
-                                    <input type="tel" class="form-control" id="phone" name="phone"
-                                        value="{{ user.Phone or '' }}" required>
+                                    <input type="tel" class="form-control" id="phone" name="phone" value="{{ user.Phone or '' }}" required>
                                 </div>
                             </div>
                         </div>
@@ -72,17 +65,13 @@
                                     <i class="fas fa-key me-2"></i>Change Password
                                     <small class="text-muted">(Optional)</small>
                                 </h5>
-
                                 <div class="mb-3">
                                     <label for="current_password" class="form-label">
                                         <i class="fas fa-lock me-2"></i>Current Password
                                     </label>
                                     <div class="position-relative">
-                                        <input type="password" class="form-control" id="current_password"
-                                            name="current_password">
-                                        <button type="button" class="btn btn-outline-secondary btn-sm position-absolute"
-                                            style="right: 10px; top: 50%; transform: translateY(-50%);"
-                                            onclick="togglePassword('current_password')">
+                                        <input type="password" class="form-control password-input" id="current_password" name="current_password">
+                                        <button type="button" class="btn btn-outline-secondary password-toggle" onclick="togglePassword('current_password')">
                                             <i class="fas fa-eye" id="current_password-eye"></i>
                                         </button>
                                     </div>
@@ -90,17 +79,13 @@
                                         <i class="fas fa-info-circle me-1"></i>Required only if changing password
                                     </small>
                                 </div>
-
                                 <div class="mb-3">
                                     <label for="new_password" class="form-label">
                                         <i class="fas fa-key me-2"></i>New Password
                                     </label>
                                     <div class="position-relative">
-                                        <input type="password" class="form-control" id="new_password"
-                                            name="new_password">
-                                        <button type="button" class="btn btn-outline-secondary btn-sm position-absolute"
-                                            style="right: 10px; top: 50%; transform: translateY(-50%);"
-                                            onclick="togglePassword('new_password')">
+                                        <input type="password" class="form-control password-input" id="new_password" name="new_password">
+                                        <button type="button" class="btn btn-outline-secondary password-toggle" onclick="togglePassword('new_password')">
                                             <i class="fas fa-eye" id="new_password-eye"></i>
                                         </button>
                                     </div>
@@ -108,17 +93,13 @@
                                         <i class="fas fa-lightbulb me-1"></i>Leave blank to keep current password
                                     </small>
                                 </div>
-
                                 <div class="mb-3">
                                     <label for="confirm_password" class="form-label">
                                         <i class="fas fa-check-double me-2"></i>Confirm New Password
                                     </label>
                                     <div class="position-relative">
-                                        <input type="password" class="form-control" id="confirm_password"
-                                            name="confirm_password">
-                                        <button type="button" class="btn btn-outline-secondary btn-sm position-absolute"
-                                            style="right: 10px; top: 50%; transform: translateY(-50%);"
-                                            onclick="togglePassword('confirm_password')">
+                                        <input type="password" class="form-control password-input" id="confirm_password" name="confirm_password">
+                                        <button type="button" class="btn btn-outline-secondary password-toggle" onclick="togglePassword('confirm_password')">
                                             <i class="fas fa-eye" id="confirm_password-eye"></i>
                                         </button>
                                     </div>
@@ -126,7 +107,6 @@
                             </div>
                         </div>
                     </div>
-
                     <!-- Account Statistics -->
                     <div class="row mt-4">
                         <div class="col-12">
@@ -149,16 +129,14 @@
                                             <div class="card-body">
                                                 <i class="fas fa-calendar-check fa-2x text-primary mb-2"></i>
                                                 <h6>Member Since</h6>
-                                                <small class="text-muted">{{ user.get('CreatedAt', 'Welcome!')
-                                                    }}</small>
+                                                <small class="text-muted">{{ user.get('CreatedAt', 'Welcome!') }}</small>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-4">
                                         <div class="card border-0" style="background: rgba(255,255,255,0.7);">
                                             <div class="card-body">
-                                                <i class="fas fa-leaf fa-2x" style="color: var(--success-color);"
-                                                    mb-2></i>
+                                                <i class="fas fa-leaf fa-2x" style="color: var(--success-color);" mb-2></i>
                                                 <h6>Eco Points</h6>
                                                 <span class="gradient-text fw-bold">🌱 Green Member</span>
                                             </div>
@@ -168,7 +146,6 @@
                             </div>
                         </div>
                     </div>
-
                     <!-- Action Buttons -->
                     <div class="row mt-4">
                         <div class="col-12">
@@ -185,7 +162,6 @@
                 </form>
             </div>
         </div>
-
         <!-- Support Section -->
         <div class="card mt-4">
             <div class="card-body text-center">
@@ -205,14 +181,92 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
 {% block scripts %}
+<style>
+    /* Password Toggle Button: Fixes sinking/shifting on hover or mobile */
+    .password-toggle {
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%) translateZ(0); /* Add translateZ(0) for hardware acceleration */
+        border: none !important;
+        background: transparent !important;
+        border-radius: 50% !important;
+        padding: 8px !important;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        transition: background 0.15s;
+        will-change: transform;
+    }
+    .password-toggle:hover,
+    .password-toggle:active,
+    .password-toggle:focus {
+        background: rgba(45, 80, 22, 0.1) !important;
+        transform: translateY(-50%) translateZ(0) !important; /* IMPORTANT: Keep this consistent */
+        outline: none !important;
+        box-shadow: none !important;
+    }
+    .password-input {
+        padding-right: 50px !important;
+        /* Prevent input focus/hover from affecting its parent or siblings */
+        transition: box-shadow 0.3s ease, transform 0.3s ease;
+    }
+    .password-input:focus {
+        box-shadow: 0 0 0 0.2rem rgba(45, 80, 22, 0.25) !important;
+        transform: scale(1.02);
+    }
+    .password-input:hover {
+        transform: scale(1.02);
+    }
+    /* Mobile-specific adjustments */
+    @media (max-width: 768px) {
+        .password-toggle {
+            right: 3px;
+            width: 35px;
+            height: 35px;
+            padding: 6px !important;
+        }
+        .password-toggle i {
+            font-size: 14px;
+        }
+        .password-input {
+            padding-right: 45px !important;
+            font-size: 16px !important;
+        }
+    }
+    /* Very small screens */
+    @media (max-width: 480px) {
+        .password-toggle {
+            right: 2px;
+            width: 32px;
+            height: 32px;
+            padding: 5px !important;
+        }
+        .password-toggle i {
+            font-size: 12px;
+        }
+        .password-input {
+            padding-right: 40px !important;
+        }
+    }
+    /* Make sure the parent of the input and button stays stable */
+    .position-relative {
+        position: relative;
+        min-height: auto;
+    }
+</style>
+
 <script>
     // Password visibility toggle
     function togglePassword(fieldId) {
         const field = document.getElementById(fieldId);
         const eye = document.getElementById(fieldId + '-eye');
-
         if (field.type === 'password') {
             field.type = 'text';
             eye.className = 'fas fa-eye-slash';
@@ -223,7 +277,7 @@
     }
 
     // Password strength indicator
-    document.getElementById('new_password').addEventListener('input', function () {
+    document.getElementById('new_password').addEventListener('input', function() {
         const password = this.value;
         const currentPassword = document.getElementById('current_password');
         const confirmPassword = document.getElementById('confirm_password');
@@ -231,11 +285,9 @@
         if (password) {
             currentPassword.required = true;
             confirmPassword.required = true;
-            // Add visual feedback
             currentPassword.style.borderColor = 'var(--warning-color)';
             confirmPassword.style.borderColor = 'var(--warning-color)';
 
-            // Password strength visual feedback
             let strength = 0;
             if (password.length >= 6) strength++;
             if (password.match(/[a-z]/)) strength++;
@@ -254,7 +306,6 @@
             currentPassword.required = false;
             confirmPassword.required = false;
             confirmPassword.value = '';
-            // Reset visual feedback
             currentPassword.style.borderColor = '';
             confirmPassword.style.borderColor = '';
             this.style.borderColor = '';
@@ -262,9 +313,8 @@
     });
 
     // Confirm password matching with nature-themed validation
-    document.getElementById('confirm_password').addEventListener('input', function () {
+    document.getElementById('confirm_password').addEventListener('input', function() {
         const newPassword = document.getElementById('new_password').value;
-
         if (this.value !== newPassword) {
             this.setCustomValidity('Passwords do not match');
             this.style.borderColor = 'var(--danger-color)';
@@ -275,14 +325,13 @@
     });
 
     // Form submission with loading state
-    document.querySelector('form').addEventListener('submit', function (e) {
+    document.querySelector('form').addEventListener('submit', function(e) {
         const submitBtn = document.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerHTML;
 
         // Check if passwords match before submitting
         const password = document.getElementById('new_password').value;
         const confirmPassword = document.getElementById('confirm_password').value;
-
         if (password && password !== confirmPassword) {
             e.preventDefault();
             alert('🍃 Car Parking Setting 12\n\nPasswords do not match. Please check and try again.');
@@ -300,52 +349,56 @@
         }, 5000);
     });
 
-    // Add hover effects to form elements
+    // Add hover effects to form elements (but exclude the password toggle)
     document.querySelectorAll('.form-control').forEach(input => {
-        input.addEventListener('focus', function () {
+        input.addEventListener('focus', function() {
             this.style.transform = 'scale(1.02)';
             this.style.transition = 'all 0.3s ease';
             this.style.boxShadow = '0 4px 15px rgba(45, 80, 22, 0.2)';
-
-            // Mobile: scroll into view
             if (window.innerWidth <= 768) {
                 this.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         });
-
-        input.addEventListener('blur', function () {
+        input.addEventListener('blur', function() {
             this.style.transform = 'scale(1)';
             this.style.boxShadow = '';
         });
     });
 
-    // Add hover effects to buttons
-    document.querySelectorAll('.btn').forEach(btn => {
-        btn.addEventListener('mouseenter', function () {
-            if (window.innerWidth > 768) { // Only on desktop
+    // Add hover effects to buttons (desktop only, exclude password toggle)
+    if (window.innerWidth > 768) {
+        document.querySelectorAll('.btn:not(.password-toggle)').forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
                 this.style.transform = 'translateY(-2px)';
                 this.style.transition = 'all 0.3s ease';
-            }
+            });
+            btn.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
         });
-
-        btn.addEventListener('mouseleave', function () {
-            this.style.transform = 'translateY(0)';
-        });
-    });
+    }
 
     // Mobile-specific improvements
     if (window.innerWidth <= 768) {
-        // Add touch feedback for mobile
-        document.querySelectorAll('.btn, .form-control').forEach(element => {
-            element.addEventListener('touchstart', function () {
+        // Add touch feedback for mobile (exclude password toggle)
+        document.querySelectorAll('.btn:not(.password-toggle), .form-control').forEach(element => {
+            element.addEventListener('touchstart', function() {
                 this.style.opacity = '0.8';
             });
-
-            element.addEventListener('touchend', function () {
+            element.addEventListener('touchend', function() {
                 this.style.opacity = '1';
+            });
+        });
+        // Enhanced touch feedback for password toggle
+        document.querySelectorAll('.password-toggle').forEach(toggle => {
+            toggle.addEventListener('touchstart', function() {
+                this.style.backgroundColor = 'rgba(45, 80, 22, 0.2)';
+                this.style.borderRadius = '50%';
+            });
+            toggle.addEventListener('touchend', function() {
+                this.style.backgroundColor = 'transparent';
             });
         });
     }
 </script>
-{% endblock %}
 {% endblock %}
